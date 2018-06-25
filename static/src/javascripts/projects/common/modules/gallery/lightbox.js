@@ -332,6 +332,9 @@ class GalleryLightbox {
             return Promise.all([this.loadNextOrPrevious(currentId, 'forwards'), this.loadNextOrPrevious(currentId, 'backwards')])
                 .then((result) => { return {next: result[0], previous: result[1]}})
                 .then((nextPrevJson) => {
+                    console.log(nextPrevJson)
+                    const newIm = nextPrevJson.previous.images.concat(galleryJson.images, nextPrevJson.next.images);
+                    console.log("combinedall", newIm);
                     galleryJson.images.unshift(nextPrevJson.previous.images[0]);
                     galleryJson.images.push(nextPrevJson.next.images[0]);
                     this.index = 2;
