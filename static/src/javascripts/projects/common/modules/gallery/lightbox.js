@@ -337,10 +337,8 @@ class GalleryLightbox {
                     // console.log(test1);
                     const newIm = nextPrevJson.previous.concat(galleryJson.images, nextPrevJson.next);
                     console.log("combinedall", newIm);
-                    // galleryJson.images.unshift(nextPrevJson.previous.images[0]);
-                    // galleryJson.images.push(nextPrevJson.next.images[0]);
                     galleryJson.images= newIm;
-                    this.index = 2;
+                    this.index = nextPrevJson.previous.length + 1;
                     this.loadOrOpen(galleryJson)
                 });
         } else {
