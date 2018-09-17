@@ -324,7 +324,8 @@ class GalleryLightbox {
 
     loadGalleryfromJson(galleryJson: GalleryJson, defaultIndex: number, jumpToStartImage: boolean): void {
 
-        if (galleryJson.images.length < 2) {
+        // if this is an image page, load series of images into the lightbox
+        if (window.guardian.config.page.contentType == "ImageContent" && galleryJson.images.length < 2) {
             // store current path with leading slash removed
             const currentId = window.location.pathname.substring(1);
             // fetch next and previous images and load them
