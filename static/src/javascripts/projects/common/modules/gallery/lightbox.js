@@ -299,43 +299,66 @@ class GalleryLightbox {
         this.fsm.trigger(event, data);
     }
 
-    loadNextOrPrevious(currentImageId: string, direction: string): Promise<Object> {
-        const pathPrefix = pathPrefix || (direction === 'forwards') ? 'getnext' : 'getprev';
-        const seriesTag = guardian.config.page.nonKeywordTagIds.split(",").filter(tag => tag.includes("series"))[0];
-        const fetchUrl = '/' + pathPrefix + '/' + seriesTag + '/' + currentImageId;
+    static loadNextOrPrevious(
+        currentImageId: string,
+        direction: string
+    ): Promise<Object> {
+        const pathPrefix = direction === 'forwards' ? 'getnext' : 'getprev';
+        const seriesTag = config.page.nonKeywordTagIds
+            .split(',')
+            .filter(tag => tag.includes('series'))[0];
+        const fetchUrl = `/${pathPrefix}/${seriesTag}/${currentImageId}`;
         return fetch(fetchUrl)
-            .then(function(response) {
-                return response.json();
-            }).then(function(json){
+            .then(response => response.json())
+            .then(json =>
                 // filter out non-lightbox items in the series
-                return json.filter((image) => image.images.length > 0);
-            }).catch(function(ex) {
-            console.error('next/previous parsing failed', ex);
-        });
+                json.filter(image => image.images.length > 0)
+            )
+            .catch(ex => {
+                console.error('next/previous parsing failed', ex);
+            });
     }
 
     loadOrOpen(newGalleryJson: Object): void {
-        if (this.galleryJson && newGalleryJson.id === this.galleryJson.id && newGalleryJson.images.length === this.galleryJson.images.length) {
+        if (
+            this.galleryJson &&
+            newGalleryJson.id === this.galleryJson.id &&
+            newGalleryJson.images.length === this.galleryJson.images.length
+        ) {
             this.trigger('open');
         } else {
             this.trigger('loadJson', newGalleryJson);
         }
     }
 
-    loadGalleryfromJson(galleryJson: GalleryJson, defaultIndex: number, jumpToStartImage: boolean): void {
-
+    loadGalleryfromJson(
+        galleryJson: GalleryJson,
+        defaultIndex: number,
+        jumpToStartImage: boolean
+    ): void {
         // if this is an image page, load series of images into the lightbox
-        if (window.guardian.config.page.contentType == "ImageContent" && galleryJson.images.length < 2) {
+        if (
+            config.page.contentType === 'ImageContent' &&
+            galleryJson.images.length < 2
+        ) {
             // store current path with leading slash removed
             const currentId = window.location.pathname.substring(1);
             // fetch next and previous images and load them
-            return Promise.all([this.loadNextOrPrevious(currentId, 'forwards'), this.loadNextOrPrevious(currentId, 'backwards')])
-                .then((result) => { return {next: result[0].map(e => e.images[0]), previous: result[1].map(e => e.images[0])}})
-                .then((nextPrevJson) => {
+            return Promise.all([
+                this.loadNextOrPrevious(currentId, 'forwards'),
+                this.loadNextOrPrevious(currentId, 'backwards'),
+            ])
+                .then(result => ({
+                    next: result[0].map(e => e.images[0]),
+                    previous: result[1].map(e => e.images[0]),
+                }))
+                .then(nextPrevJson => {
                     // combine this image, and the ones before and after it, into one big array
-                    const allImages = nextPrevJson.previous.reverse().concat(galleryJson.images, nextPrevJson.next);
+                    const allImages = nextPrevJson.previous
+                        .reverse()
+                        .concat(galleryJson.images, nextPrevJson.next);
 
-                    galleryJson.images= allImages;
+                    galleryJson.images = allImages;
                     // start index is in the middle of the two lists we just concatenated
                     this.startIndex = nextPrevJson.previous.length + 1;
                     if (jumpToStartImage) {
@@ -343,25 +366,20 @@ class GalleryLightbox {
                     } else {
                         this.index = defaultIndex;
                     }
-                    this.loadOrOpen(galleryJson)
+                    this.loadOrOpen(galleryJson);
                 });
-        } else {
-            this.index = defaultIndex;
-            this.loadOrOpen(galleryJson);
         }
+        this.index = defaultIndex;
+        this.loadOrOpen(galleryJson);
     }
 
     loadHtml(json: GalleryJson): void {
-
         this.images = json.images || [];
         const imagesHtml = json.images
             .map((img, i) => this.generateImgHTML(img, i + 1))
             .join('');
         this.$contentEl.html(imagesHtml);
-        this.$images = $(
-            '.js-gallery-lightbox-img',
-            this.$contentEl[0]
-        );
+        this.$images = $('.js-gallery-lightbox-img', this.$contentEl[0]);
         this.$countEl.text(this.images.length);
     }
 
@@ -688,12 +706,20 @@ const init = (): void => {
             if (match) {
                 // index specified so launch lightbox at that index
                 pushUrl({}, document.title, galleryId, true); // lets back work properly
-                lightbox.loadGalleryfromJson(images, parseInt(match[1], 10), false);
+                lightbox.loadGalleryfromJson(
+                    images,
+                    parseInt(match[1], 10),
+                    false
+                );
             } else {
                 res = /^#(?:img-)?(\d+)$/.exec(galleryHash);
 
                 if (res) {
-                    lightbox.loadGalleryfromJson(images, parseInt(res[1], 10), false);
+                    lightbox.loadGalleryfromJson(
+                        images,
+                        parseInt(res[1], 10),
+                        false
+                    );
                 }
             }
         }
