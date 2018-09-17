@@ -299,7 +299,7 @@ class GalleryLightbox {
         this.fsm.trigger(event, data);
     }
 
-    static loadNextOrPrevious(
+   static loadNextOrPrevious(
         currentImageId: string,
         direction: string
     ): Promise<Object> {
@@ -313,10 +313,7 @@ class GalleryLightbox {
             .then(json =>
                 // filter out non-lightbox items in the series
                 json.filter(image => image.images.length > 0)
-            )
-            .catch(ex => {
-                console.error('next/previous parsing failed', ex);
-            });
+            );
     }
 
     loadOrOpen(newGalleryJson: Object): void {
@@ -344,9 +341,9 @@ class GalleryLightbox {
             // store current path with leading slash removed
             const currentId = window.location.pathname.substring(1);
             // fetch next and previous images and load them
-            return Promise.all([
-                this.loadNextOrPrevious(currentId, 'forwards'),
-                this.loadNextOrPrevious(currentId, 'backwards'),
+            Promise.all([
+                GalleryLightbox.loadNextOrPrevious(currentId, 'forwards'),
+                GalleryLightbox.loadNextOrPrevious(currentId, 'backwards'),
             ])
                 .then(result => ({
                     next: result[0].map(e => e.images[0]),
@@ -368,9 +365,10 @@ class GalleryLightbox {
                     }
                     this.loadOrOpen(galleryJson);
                 });
+        } else {
+            this.index = defaultIndex;
+            this.loadOrOpen(galleryJson);
         }
-        this.index = defaultIndex;
-        this.loadOrOpen(galleryJson);
     }
 
     loadHtml(json: GalleryJson): void {
