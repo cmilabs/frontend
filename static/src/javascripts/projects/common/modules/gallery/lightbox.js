@@ -306,6 +306,9 @@ class GalleryLightbox {
         return fetch(fetchUrl)
             .then(function(response) {
                 return response.json();
+            }).then(function(json){
+                // filter out non-lightbox items in the series
+                return json.filter((image) => image.images.length > 0);
             }).catch(function(ex) {
             console.error('next/previous parsing failed', ex);
         });
@@ -319,8 +322,7 @@ class GalleryLightbox {
         }
     }
 
-    loadGalleryfromJson(galleryJson: GalleryJson, startIndex: number): void {
-        this.index = startIndex;
+    loadGalleryfromJson(galleryJson: GalleryJson, defaultIndex: number, jumpToStartImage: boolean): void {
 
         if (galleryJson.images.length < 2) {
             // store current path with leading slash removed
@@ -329,14 +331,21 @@ class GalleryLightbox {
             return Promise.all([this.loadNextOrPrevious(currentId, 'forwards'), this.loadNextOrPrevious(currentId, 'backwards')])
                 .then((result) => { return {next: result[0].map(e => e.images[0]), previous: result[1].map(e => e.images[0])}})
                 .then((nextPrevJson) => {
-                    const allImages = nextPrevJson.previous.concat(galleryJson.images, nextPrevJson.next);
-                    console.log("combinedall", allImages);
+                    // combine this image, and the ones before and after it, into one big array
+                    const allImages = nextPrevJson.previous.reverse().concat(galleryJson.images, nextPrevJson.next);
+
                     galleryJson.images= allImages;
-                    this.startIndex = nextPrevJson.previous.length + 1
-                    this.index = startIndex;
+                    // start index is in the middle of the two lists we just concatenated
+                    this.startIndex = nextPrevJson.previous.length + 1;
+                    if (jumpToStartImage) {
+                        this.index = this.startIndex;
+                    } else {
+                        this.index = defaultIndex;
+                    }
                     this.loadOrOpen(galleryJson)
                 });
         } else {
+            this.index = defaultIndex;
             this.loadOrOpen(galleryJson);
         }
     }
@@ -371,7 +380,6 @@ class GalleryLightbox {
                     $img.attr('src', imageContent.src);
                     $img.attr('srcset', imageContent.srcsets);
                     $img.attr('sizes', imageContent.sizes);
-                    // console.log("foreaching", i, $img[0]);
 
                     bean.one($img[0], 'load', () => {
                         $('.js-loader').remove();
@@ -669,7 +677,7 @@ const init = (): void => {
                     : parsedGalleryIndex; // 1-based index
                 lightbox = lightbox || new GalleryLightbox();
 
-                lightbox.loadGalleryfromJson(images, galleryIndex);
+                lightbox.loadGalleryfromJson(images, galleryIndex, true);
             });
 
             lightbox = lightbox || new GalleryLightbox();
@@ -679,12 +687,12 @@ const init = (): void => {
             if (match) {
                 // index specified so launch lightbox at that index
                 pushUrl({}, document.title, galleryId, true); // lets back work properly
-                lightbox.loadGalleryfromJson(images, parseInt(match[1], 10));
+                lightbox.loadGalleryfromJson(images, parseInt(match[1], 10), false);
             } else {
                 res = /^#(?:img-)?(\d+)$/.exec(galleryHash);
 
                 if (res) {
-                    lightbox.loadGalleryfromJson(images, parseInt(res[1], 10));
+                    lightbox.loadGalleryfromJson(images, parseInt(res[1], 10), false);
                 }
             }
         }
