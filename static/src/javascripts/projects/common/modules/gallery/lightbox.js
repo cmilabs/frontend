@@ -304,7 +304,7 @@ class GalleryLightbox {
         direction: string
     ): Promise<Object> {
         const pathPrefix = direction === 'forwards' ? 'getnext' : 'getprev';
-        const seriesTag = config.page.nonKeywordTagIds
+        const seriesTag = config.get('page.nonKeywordTagIds')
             .split(',')
             .filter(tag => tag.includes('series'))[0];
         const fetchUrl = `/${pathPrefix}/${seriesTag}/${currentImageId}`;
