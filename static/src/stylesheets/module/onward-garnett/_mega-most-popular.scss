@@ -1,42 +1,39 @@
-.meg-meta {
+.fc-slots__popular {
     column-width: 18.75rem;
     column-gap: 1px;
 
     column-rule: 1px solid #dcdcdc;
-
-    .slot-heading,
-    .slot-body {
-        padding: .5rem;
-        border-top: 1px solid #dcdcdc;
-
-        display: inline-block;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    h2 {
-        font-size: 1rem;
-        line-height: 1.25rem;
-        font-family: 'Guardian Egyptian Web', Georgia, serif;
-        font-weight: 600;
-    }
 
     .byline,
     .byline span[itemprop='author'] {
         color: #767676;
         font-weight: normal;
     }
-
-    .meg-onward-link {
-        color: #121212;
-    }
-
-    .comment-count {
-
-    }
 }
 
-.mega-most-popular {
+.fc-slot__heading--popular,
+.fc-slot__body--popular {
+    padding: .5rem;
+    border-top: 1px solid #dcdcdc;
+
+    display: inline-block;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.fc-slot__header--popular {
+    font-size: 1rem;
+    line-height: 1.25rem;
+    font-family: 'Guardian Egyptian Web', Georgia, serif;
+    font-weight: 600;
+}
+
+.fc-slot__onward-link--popular {
+    color: #121212;
+}
+
+/* Override Garnett styling around borders */
+.fc-slice--mega-popular {
 
     .headline-column--desktop {
         column-rule: 1px solid #dcdcdc;
@@ -45,7 +42,6 @@
         column-gap: 1px;
     }
 
-    /* Override Garnett styling to avoid double border */
     .tabs__content {
         border-top: 0;
     }
