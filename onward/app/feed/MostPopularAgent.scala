@@ -1,13 +1,13 @@
 package feed
 
 import com.gu.Box
-import com.gu.contentapi.client.model.SearchQuery
-import contentapi.ContentApiClient
+import com.gu.contentapi.client.model.v1.Content
 import common._
-import services.{OphanApi, S3, S3Megaslot}
-import model.{Content, MegaSlotMeta, RelatedContentItem}
+import contentapi.ContentApiClient
+import model.{MegaSlotMeta, RelatedContentItem}
 import play.api.libs.json._
 import play.api.libs.ws.WSClient
+import services.{OphanApi, S3Megaslot}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -150,8 +150,7 @@ object MegaSlot extends Logging {
     for {
       response <- client.getResponse(query)
     } yield {
-      val models = response.results.map(c => c.id -> Content.make(c)).toMap
-      log.info(s"Megaslot - capi response has IDs: ${response.results.map(_.id).mkString(",")}")
+      val models = response.results.map(c => c.id -> c).toMap
       MegaSlot(
         headline = meta.headline,
         uk = models(meta.uk),
@@ -197,14 +196,12 @@ class MostCommentedAgent(val contentApiClient: ContentApiClient, wsClient: WSCli
   def getHeadline: String = agent.get.map(_.headline).getOrElse("")
 
   def get(edition: Edition): Option[(Content, Int)] = {
-    log.info(s"Megaslot - comment counts are: ${commentCounts.get}")
-
     agent.get.flatMap { megaSlot =>
       edition match {
-        case editions.Uk => commentCounts.get.get(megaSlot.uk.shortUrlPath).map(count => megaSlot.uk -> count)
-        case editions.Us => commentCounts.get.get(megaSlot.us.shortUrlPath).map(count => megaSlot.au -> count)
-        case editions.Au => commentCounts.get.get(megaSlot.au.shortUrlPath).map(count => megaSlot.uk -> count)
-        case editions.International => commentCounts.get.get(megaSlot.row.shortUrlPath).map(count => megaSlot.row -> count)
+        case editions.Uk => commentCounts.get.get(shortUrl(megaSlot.uk)).map(count => megaSlot.uk -> count)
+        case editions.Us => commentCounts.get.get(shortUrl(megaSlot.us)).map(count => megaSlot.au -> count)
+        case editions.Au => commentCounts.get.get(shortUrl(megaSlot.au)).map(count => megaSlot.uk -> count)
+        case editions.International => commentCounts.get.get(shortUrl(megaSlot.row)).map(count => megaSlot.row -> count)
         case _ => {
           log.info(s"Megaslot - unable to find most commented for edition ${edition.id} in ${commentCounts}")
           None
@@ -218,13 +215,10 @@ class MostCommentedAgent(val contentApiClient: ContentApiClient, wsClient: WSCli
 
     ms.foreach { slot =>
       agent.alter(Some(slot))
-      // now get DAPI stuff
-      val params = List(slot.uk.shortUrlId, slot.us.shortUrlId, slot.au.shortUrlId, slot.row.shortUrlId)
+      val params = List(shortUrl(slot.uk), shortUrl(slot.us), shortUrl(slot.au), shortUrl(slot.row))
           .map("short-urls" -> _)
-      log.info(s"Megaslot - shorts URLS are ${params.mkString(",")}")
 
       val countsURL = s"$dapiURL/getCommentCounts"
-      log.info(s"Megaslot - getting DAPI counts from $countsURL")
       val response = wsClient
         .url(countsURL)
         .addQueryStringParameters(params: _*)
@@ -241,4 +235,7 @@ class MostCommentedAgent(val contentApiClient: ContentApiClient, wsClient: WSCli
     }
     ms
   }
+
+  private[this] def shortUrl(c: Content) = c.fields.flatMap(_.shortUrl).map(_.stripPrefix("https://gu.com")).getOrElse("")
+
 }

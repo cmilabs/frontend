@@ -15,10 +15,11 @@
 .fc-slot__body--popular {
     padding: .25rem .35714rem 0;
     border-top: 1px solid #dcdcdc;
-    min-height: 2.25rem;
+    min-height: 2.5rem;
     display: inline-block;
     width: 100%;
     box-sizing: border-box;
+    font-family: 'Guardian Egyptian Web', Georgia, serif;
 }
 
 .fc-slot__header--popular {
@@ -33,10 +34,16 @@
     color: #121212;
 }
 
+.fc-slot__count-popular {
+    font-size: 22px;
+    font-weight: 600;
+}
+
 /* Override Garnett styling around borders */
 .fc-slice--mega-popular {
-    border-left: 1px solid #dcdcdc;
-
+    @include mq(leftCol) {
+        border-left: 1px solid #dcdcdc;
+    }
 
     .headline-column--desktop {
         column-rule: 1px solid #dcdcdc;
@@ -63,10 +70,35 @@
 
     .tabs__tab {
         border-bottom: 1px solid #dcdcdc;
-        border-top: 1px solid #dcdcdc;
+        border-top: 0;
 
         a {
             font-weight: normal;
+            min-height: 2.5rem;
         }
     }
+
+    .inline-icon {
+        fill: #000000;
+    }
 }
+
+.popular-trails-mega.fc-container__body {
+    @include mq(leftCol) {
+        margin-left: 150px;
+        display: flex;
+        padding-top: 0;
+
+    }
+}
+
+.popular-trails-mega {
+    .fc-slice__popular-mpu {
+        border-top: 0;
+    }
+
+    .tabs--megamostpop {
+        margin-top: -.4rem;
+    }
+}
+

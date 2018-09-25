@@ -56,3 +56,11 @@ object DotcomponentsRendering extends Experiment(
   sellByDate = new LocalDate(2018, 12, 31),
   participationGroup = Perc0A
 )
+
+object MegaMostViewed extends Experiment(
+  name = "mega-most-viewed",
+  description = "Displays an extended height most viewed to support larger MPU",
+  owners = Seq(Owner.withGithub("nicl")),
+  sellByDate = new LocalDate(2018, 12, 1),
+  participationGroup = Perc0A
+)

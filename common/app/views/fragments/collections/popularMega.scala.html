@@ -1,10 +1,13 @@
-@(popular: Seq[model.MostPopular], mostCommented: model.Content, mostCommentedCount: Int, onSocial: model.Content, containerDefinition: Option[layout.FaciaContainer] = None, isFront: Boolean = false)(implicit request: RequestHeader)
+@import layout.FaciaWidths
+@import views.support.CutOut
+@(popular: Seq[model.MostPopular], mostCommented: Option[(layout.ContentCard, Int)], onSocial: Option[layout.ContentCard], containerDefinition: Option[layout.FaciaContainer] = None, isFront: Boolean = false)(implicit request: RequestHeader)
 
 @import common.Localisation
 @import layout.FaciaCardHeader
 @import views.html.fragments.items.elements.facia_cards.title
+@import views.html.fragments.items.elements.facia_cards.image
 @import views.support._
-@import TrailCssClasses.toneClass
+@import views.support.TrailCssClasses.toneClass
 @import views.support.MostPopular.{isAdFree, showMPU, tabsPaneCssClass}
 @import views.support.GetClasses
 @import model.Pillar.RichPillar
@@ -63,29 +66,46 @@
             </div>
         }
 
-        <div class="fc-slots__popular">
-            <div>
-                <div class="fc-slot__heading--popular">
-                    <h2 class="fc-slot__header--popular">Most comments</h2>
-                </div>
-                <div class="fc-slot__body--popular">
-                    @fragments.meta.byline(mostCommented.trail.byline, mostCommented.tags)
-                    <a class="fc-slot__onward-link--popular" href="@{mostCommented.metadata.id}">@{mostCommented.trail.headline}</a>
-                    <div>@mostCommentedCount</div>
-                    @fragments.meta.bylineImage(mostCommented.tags)
-                </div>
-            </div>
+        @mostCommented.map{ case (commented, count) =>
+            @onSocial.map { social =>
+                <div class="fc-slots__popular">
+                    <div>
+                        <div class="fc-slot__heading--popular">
+                            <h2 class="fc-slot__header--popular">Most comments</h2>
+                        </div>
+                        <div class="fc-slot__body--popular">
+                            <a class="fc-slot__onward-link--popular" @Html(commented.header.url.hrefWithRel)>@RemoveOuterParaHtml(commented.header.headline)</a>
+                            @commented.bylineText.map { byline =>
+                                <div class="fc-item__byline">@byline</div>
+                            }
+                            <div class="fc-slot__count-popular">@fragments.inlineSvg("comment-16", "icon") @count</div>
+                            @if(commented.cardTypes.showCutOut) {
+                                @commented.cutOut.map { case cutOut@CutOut(imageUrl, _) =>
+                                <div class="fc-item__avatar">
+                                    @image(
+                                        classes = Seq("fc-item__avatar__media", cutOut.cssClass),
+                                        widths = FaciaWidths.cutOutFromItemClasses(commented.cardTypes),
+                                        maybePath = Some(imageUrl)
+                                    )
+                                </div>
+                                }
+                            }
+                        </div>
+                    </div>
 
-            <div>
-                <div class="fc-slot__heading--popular">
-                    <h2 class="fc-slot__header--popular">Popular on social</h2>
+                    <div>
+                        <div class="fc-slot__heading--popular">
+                            <h2 class="fc-slot__header--popular">Popular on social</h2>
+                        </div>
+                        <div class="fc-slot__body--popular">
+                            <a class="fc-slot__onward-link--popular" @Html(social.header.url.hrefWithRel)>@RemoveOuterParaHtml(social.header.headline)</a>
+                            @social.bylineText.map { byline =>
+                                <div class="fc-item__byline">@byline</div>
+                            }
+                        </div>
+                    </div>
                 </div>
-                <div class="fc-slot__body--popular">
-                    @fragments.meta.byline(onSocial.trail.byline, onSocial.tags)
-                <a class="fc-slot__onward-link--popular" href="@{onSocial.metadata.id}">@{onSocial.trail.headline}</a>
-                </div>
-            </div>
-        </div>
-
+            }
+        }
     </div>
 }
