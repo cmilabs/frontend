@@ -16,7 +16,7 @@
                 <ol class="tabs__container js-tabs" id="js-popular-tabs" role="tablist">
                     @popular.zipWithRowInfo.map{ case (section, info) =>
                     <li class="tabs__tab@if(info.isFirst){ tabs__tab--selected tone-colour tone-accent-border}" role="tab" id="tabs-popular-@info.rowNum-tab"@if(info.isFirst){ aria-selected="true"} aria-controls="tabs-popular-@info.rowNum">
-                        <a href="#tabs-popular-@info.rowNum" data-link-name="tab @info.rowNum @section.heading"><span class="u-h">Most viewed </span>@Html(Localisation(section.heading.stripPrefix("popular ")))</a>
+                        <a href="#tabs-popular-@info.rowNum" data-link-name="tab @info.rowNum @section.heading"><span class="u-h">Most viewed </span>@Html(Localisation(section.heading.stripPrefix("popular ").capitalize))</a>
                     </li>
                     }
                 </ol>
@@ -66,7 +66,7 @@
         <div class="fc-slots__popular">
             <div>
                 <div class="fc-slot__heading--popular">
-                    <h2 class="fc-slot__header--popular">most comments</h2>
+                    <h2 class="fc-slot__header--popular">Most comments</h2>
                 </div>
                 <div class="fc-slot__body--popular">
                     @fragments.meta.byline(mostCommented.trail.byline, mostCommented.tags)
@@ -78,7 +78,7 @@
 
             <div>
                 <div class="fc-slot__heading--popular">
-                    <h2 class="fc-slot__header--popular">on social</h2>
+                    <h2 class="fc-slot__header--popular">Popular on social</h2>
                 </div>
                 <div class="fc-slot__body--popular">
                     @fragments.meta.byline(onSocial.trail.byline, onSocial.tags)
