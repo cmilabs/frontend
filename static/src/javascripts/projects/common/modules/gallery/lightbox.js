@@ -131,8 +131,6 @@ class GalleryLightbox {
         this.$swipeContainer = $('.js-gallery-swipe');
         bean.on(this.nextBtn, 'click', this.trigger.bind(this, 'next'));
         bean.on(this.prevBtn, 'click', this.trigger.bind(this, 'prev'));
-        // bean.on(this.nextBtn, 'click', this.trigger.bind(this, 'xkcdNext'));
-        // bean.on(this.prevBtn, 'click', this.trigger.bind(this, 'xkcdPrev'));
         bean.on(this.closeBtn, 'click', this.close.bind(this));
         bean.on(this.infoBtn, 'click', this.trigger.bind(this, 'toggleInfo'));
         this.handleKeyEvents = this.handleKeyEvents.bind(this); // bound for event handler
