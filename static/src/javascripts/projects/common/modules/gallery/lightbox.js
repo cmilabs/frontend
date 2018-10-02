@@ -299,12 +299,13 @@ class GalleryLightbox {
         this.fsm.trigger(event, data);
     }
 
-   static loadNextOrPrevious(
+    static loadNextOrPrevious(
         currentImageId: string,
         direction: string
     ): Promise<Object> {
         const pathPrefix = direction === 'forwards' ? 'getnext' : 'getprev';
-        const seriesTag = config.get('page.nonKeywordTagIds')
+        const seriesTag = config
+            .get('page.nonKeywordTagIds')
             .split(',')
             .filter(tag => tag.includes('series'))[0];
         const fetchUrl = `/${pathPrefix}/${seriesTag}/${currentImageId}`;
@@ -335,7 +336,7 @@ class GalleryLightbox {
     ): void {
         // if this is an image page, load series of images into the lightbox
         if (
-            config.page.contentType === 'ImageContent' &&
+            config.get('page.contentType') === 'ImageContent' &&
             galleryJson.images.length < 2
         ) {
             // store current path with leading slash removed
